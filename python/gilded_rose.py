@@ -1,23 +1,23 @@
 # -*- coding: utf-8 -*-
 
+
 class GildedRose(object):
     def __init__(self, items):
         self.items = items
 
     def update_quality(self):
-        for item in self.items:
+        for i, item in enumerate(self.items):
             if item.name == "Aged Brie":
-                processed_item = AgedBrieRule(item).process()
+                self.items[i] = AgedBrieRule(item).process()
             elif item.name == "Sulfuras, Hand of Ragnaros":
-                processed_item = SulfurasRule(item).process()
+                self.items[i] = SulfurasRule(item).process()
             elif item.name == "Backstage passes to a TAFKAL80ETC concert":
-                processed_item = BackstagePassRule(item).process()
+                self.items[i] = BackstagePassRule(item).process()
             elif item.name == "Conjured Mana Cake":
-                processed_item = ConjuredRule(item).process()
+                self.items[i] = ConjuredRule(item).process()
             else:
-                processed_item = RegularRule(item).process()
-            item.sell_in = processed_item.sell_in
-            item.quality = processed_item.quality
+                self.items[i] = RegularRule(item).process()
+
 
 class Item:
     def __init__(self, name, sell_in, quality):
@@ -27,7 +27,8 @@ class Item:
 
     def __repr__(self):
         return "%s, %s, %s" % (self.name, self.sell_in, self.quality)
-        
+
+
 class RegularRule(object):
     def __init__(self, item):
         self.name = item.name
@@ -39,21 +40,27 @@ class RegularRule(object):
 
     def preprocess(self):
         if self.quality > self.MAX_QUALITY:
-            raise ValueError(f"Item quality should never be higher than {self.MAX_QUALITY}")
+            raise ValueError(
+                f"Item quality should never be higher than {self.MAX_QUALITY}"
+            )
         if self.quality < self.MIN_QUALITY:
-            raise ValueError(f"Item quality should never be lower than {self.MIN_QUALITY}")
-        
+            raise ValueError(
+                f"Item quality should never be lower than {self.MIN_QUALITY}"
+            )
+
     def postprocess(self):
         self.sell_in = self.sell_in - 1
-        return Item(self.name,self.sell_in,self.quality)
-    
+        return Item(self.name, self.sell_in, self.quality)
+
     def process(self):
         self.preprocess()
         if self.quality > self.MIN_QUALITY:
             if self.sell_in > 0:
-                self.quality = max(self.quality - self.degrade_factor,self.MIN_QUALITY)
+                self.quality = max(self.quality - self.degrade_factor, self.MIN_QUALITY)
             else:
-                self.quality = max(self.quality - (2 * self.degrade_factor),self.MIN_QUALITY)
+                self.quality = max(
+                    self.quality - (2 * self.degrade_factor), self.MIN_QUALITY
+                )
         return self.postprocess()
 
 
@@ -62,16 +69,19 @@ class AgedBrieRule(RegularRule):
         self.preprocess()
         if self.quality < self.MAX_QUALITY:
             if self.sell_in > 0:
-                self.quality = min(self.quality + 1,self.MAX_QUALITY)
+                self.quality = min(self.quality + 1, self.MAX_QUALITY)
             else:
-                self.quality = min(self.quality + 2,self.MAX_QUALITY)
+                self.quality = min(self.quality + 2, self.MAX_QUALITY)
         return self.postprocess()
+
 
 class SulfurasRule(RegularRule):
     def preprocess(self):
         pass
+
     def process(self):
-        return Item(self.name,self.sell_in,self.quality)
+        return Item(self.name, self.sell_in, self.quality)
+
 
 class BackstagePassRule(RegularRule):
     def process(self):
@@ -80,12 +90,13 @@ class BackstagePassRule(RegularRule):
             self.quality = self.MIN_QUALITY
         elif self.quality <= self.MAX_QUALITY:
             if self.sell_in <= 5:
-                self.quality = min(self.MAX_QUALITY,self.quality + 3)
+                self.quality = min(self.MAX_QUALITY, self.quality + 3)
             elif self.sell_in <= 10:
-                self.quality = min(self.MAX_QUALITY,self.quality + 2)
+                self.quality = min(self.MAX_QUALITY, self.quality + 2)
             else:
-                self.quality = min(self.MAX_QUALITY,self.quality + 1)
+                self.quality = min(self.MAX_QUALITY, self.quality + 1)
         return self.postprocess()
+
 
 class ConjuredRule(RegularRule):
     def __init__(self, item):

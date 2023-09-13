@@ -5,7 +5,7 @@ from gilded_rose import Item, GildedRose
 
 
 class GildedRoseTest(unittest.TestCase):
-    def test_foo(self):
+    def test_happy_flow(self):
         items = [
             Item(name="+5 Dexterity Vest", sell_in=10, quality=20),
             Item(name="Aged Brie", sell_in=2, quality=0),
@@ -28,6 +28,29 @@ class GildedRoseTest(unittest.TestCase):
         gilded_rose.update_quality()
         self.assertEqual(9, gilded_rose.items[0].sell_in)
         self.assertEqual(19, gilded_rose.items[0].quality)
+        gilded_rose.update_quality()
+        # Conjured item
+        self.assertEqual(1, gilded_rose.items[8].sell_in)
+        self.assertEqual(2, gilded_rose.items[8].quality)
+        gilded_rose.update_quality()
+        gilded_rose.update_quality()
+        gilded_rose.update_quality()
+        # regular item
+        self.assertEqual(5, gilded_rose.items[0].sell_in)
+        self.assertEqual(15, gilded_rose.items[0].quality)
+        # backstage passes
+        self.assertEqual(10, gilded_rose.items[5].sell_in)
+        self.assertEqual(25, gilded_rose.items[5].quality)
+
+    def test_exceptions(self):
+        items = [
+            Item(name="Sulfuras, Hand of Ragnaros", sell_in=0, quality=80),
+            Item(name="Sword of Bonus Feet", sell_in=-1, quality=80),
+        ]
+
+        gilded_rose = GildedRose(items)
+        with self.assertRaises(ValueError):
+            gilded_rose.update_quality()
 
 
 if __name__ == "__main__":
