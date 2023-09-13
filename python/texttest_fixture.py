@@ -17,14 +17,15 @@ if __name__ == "__main__":
              Item(name="Conjured Mana Cake", sell_in=3, quality=6),  # <-- :O
             ]
 
-    days = 2
+    gilded_rose = GildedRose(items)
+    days = 31
     import sys
     if len(sys.argv) > 1:
         days = int(sys.argv[1]) + 1
     for day in range(days):
         print("-------- day %s --------" % day)
         print("name, sellIn, quality")
-        for item in items:
+        for item in gilded_rose.items:
             print(item)
         print("")
-        GildedRose(items).update_quality()
+        gilded_rose.update_quality()    
